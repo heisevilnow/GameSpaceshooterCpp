@@ -1,7 +1,7 @@
-#include<iostream>
+#include <iostream>
 #include <stdio.h>
 #include <conio.h>
-#include<iomanip>		// cho setw()
+#include <iomanip>		// cho setw()
 #include <windows.h>
 #include <string>
 #include <fstream>
@@ -25,7 +25,7 @@ int kill_monster = 0;
 int kill_boss = 0;
 int temp = 1;
 string ten;
-void gotoxy(int x, int y)						//su dung toa do cho cac doi tuong.
+void gotoxy(int x, int y)			
 {
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD dwPos;
@@ -33,7 +33,7 @@ void gotoxy(int x, int y)						//su dung toa do cho cac doi tuong.
 	dwPos.Y = y;
 	SetConsoleCursorPosition(hCon, dwPos);
 }
-void HideCursor()
+void HideCursor()	//Ham an con tro.
 {
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO cci;
@@ -203,7 +203,7 @@ public:
 		gotoxy(x, y + 1); cout << "       ";
 		gotoxy(x, y + 2); cout << "       ";
 	}
-	void Move()
+	void Move()			//Ham di chuyen
 	{
 		if (_kbhit()) {
 			char key = _getch();
@@ -236,14 +236,14 @@ public:
 		bullets[bIndex][2] = y + 1;			// toa do y cua vien dan 2
 		bullets[bIndex][3] = x + 4;  		//toa do x cua vien dan thu 2
 		bIndex++;
-		if (bIndex == 20)				//mang 20 4
+		if (bIndex == 20)					//mang 20 4
 			bIndex = 0;
 	}
 };
 class Bullet
 {
 public:
-	void drawBullets() {							//ve dan
+	void drawBullets() {						//ve dan
 		for (int i = 0; i < 20; i++) {
 			if (bullets[i][0] > 9) {
 				gotoxy(bullets[i][1], bullets[i][0]); cout << "^";	//ve vien dan tai toa do cua vien dan thu 1.
@@ -259,7 +259,7 @@ public:
 			}
 		}
 	}
-	void eraseBullet(int i) {				//xoa dan khi dan ban trung vao monster va boss
+	void eraseBullet(int i) {					//xoa dan khi dan ban trung vao monster va boss
 		gotoxy(bullets[i][1], bullets[i][0]); 	  cout << " ";
 		gotoxy(bullets[i][3], bullets[i][2]); 	  cout << " ";
 	}
@@ -284,13 +284,13 @@ class Monster
 public:
 	void genMonster(int ind)		//khoi tao quai vat
 	{
-		MonsterX[ind] = 24 + rand() % 71;  // khoi tao toa do x cho quai vat, tu (0->71) + 24
+		MonsterX[ind] = 24 + rand() % 71;  // khoi tao toa do x cho quai vat, tu (0->71) + 24(base)
 	}
-	void genBoss(int ind)		//khoi tao quai vat
+	void genBoss(int ind)			//khoi tao quai vat
 	{
-		BossX[ind] = 22 + rand() % 72;  // khoi tao toa do x cho quai vat, tu (0->72) +22
+		BossX[ind] = 22 + rand() % 72;  // khoi tao toa do x cho quai vat, tu (0->72) + 22(base)
 	}
-	void drawMonster(int ind) {	// ve quai vat.
+	void drawMonster(int ind) {		// ve quai vat.
 		if (MonsterFlag[ind] == 1) {
 			gotoxy(MonsterX[ind], MonsterY[ind]);	  cout << ".**.";
 			gotoxy(MonsterX[ind], MonsterY[ind] + 1); cout << ".**.";
@@ -396,7 +396,7 @@ int bulletHitMonster(class Monster ms, class Bullet bl) {
 	}
 	return 0;
 }
-int bulletHitBoss(class Monster ms, class Bullet bl) {
+int bulletHitBoss(Monster ms, Bullet bl) {
 	for (int i = 0; i < 20; i++) {
 		for (int j = 0; j < 4; j += 2) {
 			if (bullets[i][j] != 0)
@@ -420,7 +420,7 @@ int bulletHitBoss(class Monster ms, class Bullet bl) {
 	return 0;
 }
 
-int collision(SpaceShip& ss, Monster ms) {							//va cham
+int collision(SpaceShip &ss, Monster ms) {							//va cham
 	for (int i = 0; i < sl_monster; i++)
 	{
 		if ((MonsterX[i] >= ss.getsX()) && (MonsterX[i] <= ss.getsX() + 6) && (MonsterY[i] + 1 >= ss.getsY()) && (MonsterY[i] + 1 <= ss.getsY() + 3)) 
