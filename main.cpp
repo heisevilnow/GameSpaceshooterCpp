@@ -1,38 +1,26 @@
 #include <iostream>
+#include <cstdlib>
 #include <stdio.h>
 #include <conio.h>
 #include <iomanip>		// cho setw()
 #include <windows.h>
 #include <string>
 #include <fstream>
+#include "SpaceShip.h"
+#include "Monster.h"
+#include "Bullet.h"
+#include "Player.h"
 using namespace std;
-int MonsterY[10];
-int MonsterX[10];
-int BossY[5];
-int BossX[5];
-int MonsterFlag[10];
-int BossFlag[5];
-int hp_boss[5];
-int bullets[20][4];
-int bIndex = 0;
-int score = 0;
-int hp = 3;
-int boss_die = 0;
-int sl_monster = 4;
-int sl_boss = 2;
-int level = 1;
-int kill_monster = 0;
-int kill_boss = 0;
-int temp = 1;
-string ten;
-void gotoxy(int x, int y)			
-{
-	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD dwPos;
-	dwPos.X = x;
-	dwPos.Y = y;
-	SetConsoleCursorPosition(hCon, dwPos);
-}
+
+static int hp_boss[5];
+static int hp = 3;
+static int boss_die = 0;
+static int level = 1;
+static int kill_monster = 0;
+static int kill_boss = 0;
+static int temp = 1;
+static string ten;
+
 void HideCursor()	//Ham an con tro.
 {
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -126,7 +114,7 @@ void Khung_Game(int x1, int y1, int x2, int y2)		 // Ham ve khung hinh chu nhat 
 	gotoxy(x2, y2); cout << char(188);
 	TextColor(7);
 }
-void Khung_Game_HP_SCORE()					//Gioi han kick thuoc cua game.
+void Khung_Game_HP_SCORE()					//Gioi han kich thuoc cua game.
 {
 	Khung_Game(21, 8, 99, 34);
 	for (int i = 107; i < 116; i++)
@@ -174,217 +162,19 @@ void Khung_Game_HP_SCORE()					//Gioi han kick thuoc cua game.
 	gotoxy(128, 11); cout << "SCORE";	//toa do cua SCORE
 	TextColor(7);
 }
-
-
-class SpaceShip
-{
-private:
-	int x;
-	int y;
-
-public:
-	SpaceShip(int _x, int _y)
-	{
-		x = _x;
-		y = _y;
-	}
-
-	int getsX() { return x; }
-	int getsY() { return y; }
-	void Draw()			//Ham hien thi hinh tau chien.
-	{
-		gotoxy(x, y);   cout << "   " << char(30);
-		gotoxy(x, y + 1); cout << "  " << char(207) << char(4) << char(207);
-		gotoxy(x, y + 2); cout << char(17) << char(254) << char(30) << char(223) << char(30) << char(254) << char(16);
-	}
-	void Erase()		//Ham xoa hinh tau chien.	
-	{
-		gotoxy(x, y);     cout << "       ";
-		gotoxy(x, y + 1); cout << "       ";
-		gotoxy(x, y + 2); cout << "       ";
-	}
-	void Move()			//Ham di chuyen
-	{
-		if (_kbhit()) {
-			char key = _getch();
-			Erase();
-			if (key == 'a' || key == 'A') {
-				if (x > 23)
-					x -= 2;
-			}
-			else if (key == 'd' || key == 'D') {
-				if (x < 91)
-					x += 2;
-			}
-			else if (key == 'w' || key == 'W') {
-				if (y > 9)
-					y -= 1;
-			}
-			else if (key == 's' || key == 'S') {
-				if (y < 31)
-					y += 1;
-			}
-			if (key == 32) {
-				genBullet();
-			}
-		}
-		Draw();
-	}
-	void genBullet() {						//khoi tao vien dan
-		bullets[bIndex][0] = y + 1; 		// toa do y cua vien dan 1	
-		bullets[bIndex][1] = x + 2;			//  toa do x cua vien dan 1	 
-		bullets[bIndex][2] = y + 1;			// toa do y cua vien dan 2
-		bullets[bIndex][3] = x + 4;  		//toa do x cua vien dan thu 2
-		bIndex++;
-		if (bIndex == 20)					//mang 20 4
-			bIndex = 0;
-	}
-};
-class Bullet
-{
-public:
-	void drawBullets() {						//ve dan
-		for (int i = 0; i < 20; i++) {
-			if (bullets[i][0] > 9) {
-				gotoxy(bullets[i][1], bullets[i][0]); cout << "^";	//ve vien dan tai toa do cua vien dan thu 1.
-				gotoxy(bullets[i][3], bullets[i][2]); cout << "^";	//ve vien dan tai toa do cua vien dan thu 2.
-			}						
-		}						 		
-	}
-	void eraseBullets() {						//xoa dan
-		for (int i = 0; i < 20; i++) {
-			if (bullets[i][0] >= 9) {
-				gotoxy(bullets[i][1], bullets[i][0]); cout << " ";
-				gotoxy(bullets[i][3], bullets[i][2]); cout << " ";
-			}
-		}
-	}
-	void eraseBullet(int i) {					//xoa dan khi dan ban trung vao monster va boss
-		gotoxy(bullets[i][1], bullets[i][0]); 	  cout << " ";
-		gotoxy(bullets[i][3], bullets[i][2]); 	  cout << " ";
-	}
-	
-	void moveBullet() {							// di chuyen dan
-		for (int i = 0; i < 20; i++) {
-			if (bullets[i][0] > 9)
-				bullets[i][0]--;
-			else
-				bullets[i][0] = 0;
-
-			if (bullets[i][2] > 9)
-				bullets[i][2]--;
-			else
-				bullets[i][2] = 0;
-		}
-	}
-
-};
-class Monster	
-{
-public:
-	void genMonster(int ind)		//khoi tao quai vat
-	{
-		MonsterX[ind] = 24 + rand() % 71;  // khoi tao toa do x cho quai vat, tu (0->71) + 24(base)
-	}
-	void genBoss(int ind)			//khoi tao quai vat
-	{
-		BossX[ind] = 22 + rand() % 72;  // khoi tao toa do x cho quai vat, tu (0->72) + 22(base)
-	}
-	void drawMonster(int ind) {		// ve quai vat.
-		if (MonsterFlag[ind] == 1) {
-			gotoxy(MonsterX[ind], MonsterY[ind]);	  cout << ".**.";
-			gotoxy(MonsterX[ind], MonsterY[ind] + 1); cout << ".**.";
-		}
-	}
-	void resetMonster(int ind) {					//reset lai quai vat
-		eraseMonster(ind);
-		if(score<100)
-			MonsterY[ind] = 9+ rand() % 10;
-		else
-			MonsterY[ind] = 9+ rand() % 13;			//khoi tao lai toa do Y cua quai vat.
-		genMonster(ind);
-	}
-	void eraseMonster(int ind) {					//xoa quai vat
-		if (MonsterFlag[ind] == 1) {
-			gotoxy(MonsterX[ind], MonsterY[ind]);	  cout << "    ";
-			gotoxy(MonsterX[ind], MonsterY[ind] + 1); cout << "    ";
-		}
-	}
-	void drawBoss(int ind) {								// ve boss.
-		if (BossFlag[ind] == 1) {
-			gotoxy(BossX[ind], BossY[ind]);	  	cout << ".o**o.";
-			gotoxy(BossX[ind], BossY[ind] + 1); cout << ".****.";
-			gotoxy(BossX[ind], BossY[ind] + 2); cout << "**||**";
-		}
-	}
-	void eraseBoss(int ind) {					//xoa boss
-		if (BossFlag[ind] == 1) {
-			
-			gotoxy(BossX[ind], BossY[ind]);	    cout << "      ";
-			gotoxy(BossX[ind], BossY[ind] + 1); cout << "      ";
-			gotoxy(BossX[ind], BossY[ind] + 2); cout << "      ";
-		}
-	}
-	void resetBoss(int ind) {					//reset boss
-		eraseBoss(ind);
-		BossY[ind] = 9+ rand() % 11;			//khoi tao lai toa do Y cua boss
-		genBoss(ind);
-	}
-	void Move_Monster()
-	{
-		for (int i = 1; i < sl_monster; i++)
-		{
-			if (MonsterFlag[i] == 1)
-			{
-				if (i == 1)
-					MonsterX[i] += 1;
-				else if (i == 3)
-					MonsterX[i] -= 1;
-				else if (i == 5)
-					MonsterX[i] -= 1;
-			}
-			if ( MonsterX[i] < 23 + 6||MonsterX[i] > 72 - 3)	resetMonster(i);
-		}
-	}
-
-};
-class Player{
-	
-private:
-	string name;
-	int score;	
-public:	
-	string getname()
-	{
-		return name;
-	}
-	int getscore()
-	{
-		return score;
-	}
-	void setname(string ten)
-	{
-		name=ten;
-	}
-	void setscore(int diem)
-	{
-		score = diem;
-	}	
-		
-};
-int bulletHitMonster(class Monster ms, class Bullet bl) {
+int bulletHitMonster(class Monster &ms, class Bullet &bl) {
 	for (int i = 0; i < 20; i++) {
 		for (int j = 0; j < 4; j += 2) {
-			if (bullets[i][j] != 0)
+			if (bl.bullets[i][j] != 0)
 			{
 				for (int k = 0; k < sl_monster; k++) {
-					if (bullets[i][j] >= MonsterY[k] && bullets[i][j] <= MonsterY[k] + 2)
+					if (bl.bullets[i][j] >= ms.MonsterY[k] && bl.bullets[i][j] <= ms.MonsterY[k] + 2)
 					{
-						if (bullets[i][j + 1] >= MonsterX[k] && bullets[i][j + 1] <= MonsterX[k] + 3)
+						if (bl.bullets[i][j + 1] >= ms.MonsterX[k] && bl.bullets[i][j + 1] <= ms.MonsterX[k] + 3)
 						{
 							bl.eraseBullet(i);
-							bullets[i][j] = 0;
-							gotoxy(MonsterX[k], MonsterY[k] + 1); cout << "X"; Sleep(50); cout << "  ";
+							bl.bullets[i][j] = 0;
+							gotoxy(ms.MonsterX[k], ms.MonsterY[k] + 1); cout << "X"; Sleep(50); cout << "  ";
 							ms.resetMonster(k);
 							kill_monster++;
 							return 1;
@@ -399,17 +189,17 @@ int bulletHitMonster(class Monster ms, class Bullet bl) {
 int bulletHitBoss(Monster ms, Bullet bl) {
 	for (int i = 0; i < 20; i++) {
 		for (int j = 0; j < 4; j += 2) {
-			if (bullets[i][j] != 0)
+			if (bl.bullets[i][j] != 0)
 			{
 				for (int k = 0; k < sl_boss; k++) {
-						if (bullets[i][j] >= BossY[k] && bullets[i][j] <= BossY[k] + 3)
+						if (bl.bullets[i][j] >= ms.BossY[k] && bl.bullets[i][j] <= ms.BossY[k] + 3)
 						{
-							if (bullets[i][j + 1] >= BossX[k] && bullets[i][j + 1] <= BossX[k] + 6)
+							if (bl.bullets[i][j + 1] >= ms.BossX[k] && bl.bullets[i][j + 1] <= ms.BossX[k] + 6)
 							{
 								hp_boss[k]--;
 								ms.eraseBoss(k);
 								bl.eraseBullet(i);
-								bullets[i][j] = 0;
+								bl.bullets[i][j] = 0;
 								return 1;
 							}
 						}
@@ -419,11 +209,10 @@ int bulletHitBoss(Monster ms, Bullet bl) {
 	}
 	return 0;
 }
-
-int collision(SpaceShip &ss, Monster ms) {							//va cham
+int collision(SpaceShip &ss, Monster &ms) {							//va cham
 	for (int i = 0; i < sl_monster; i++)
 	{
-		if ((MonsterX[i] >= ss.getsX()) && (MonsterX[i] <= ss.getsX() + 6) && (MonsterY[i] + 1 >= ss.getsY()) && (MonsterY[i] + 1 <= ss.getsY() + 3)) 
+		if ((ms.MonsterX[i] >= ss.getsX()) && (ms.MonsterX[i] <= ss.getsX() + 6) && (ms.MonsterY[i] + 1 >= ss.getsY()) && (ms.MonsterY[i] + 1 <= ss.getsY() + 3)) 
 		{
 			ss.Erase();
 			Sleep(50);
@@ -434,7 +223,7 @@ int collision(SpaceShip &ss, Monster ms) {							//va cham
 	}
 	for (int i = 0; i < sl_boss; i++)
 	{
-		if ((BossX[i] >= ss.getsX()) && (BossX[i] <= ss.getsX() + 6) && (BossY[i] + 2 >= ss.getsY()) && (BossY[i] + 2 <= ss.getsY() + 3)) 
+		if ((ms.BossX[i] >= ss.getsX()) && (ms.BossX[i] <= ss.getsX() + 6) && (ms.BossY[i] + 2 >= ss.getsY()) && (ms.BossY[i] + 2 <= ss.getsY() + 3)) 
 		{
 			ss.Erase();
 			Sleep(50);
@@ -444,7 +233,6 @@ int collision(SpaceShip &ss, Monster ms) {							//va cham
 		}
 	}	
 }
-
 void updateScore() {
 	gotoxy(130, 13); cout << score << endl;
 }
@@ -455,7 +243,6 @@ void displayHP() {
 		gotoxy(109 + i, 13); cout << char(003);
 	}
 }
-
 void DisplayHighScore(Player listplayer[], int n)
 {
 	int x=47;
@@ -484,7 +271,6 @@ void DisplayHighScore(Player listplayer[], int n)
 	TextColor(7);
 	gotoxy(x+3,y+6);cout << "Press the X key to exit...";
 }
-
 void Them_Player_list(Player listplayer[], int &n, int vt, Player &x)
 {
 	for (int i = n - 1; i >= vt; i--)
@@ -610,7 +396,7 @@ void DisplayControl()
 	gotoxy(107+8, 33); cout <<"SPACE <-> SHOOT";
 	
 }
-void Intruction()
+void Introdution()
 {
 	for (int i = 60-6; i <83; i++)
 	{
@@ -634,6 +420,12 @@ void Intruction()
 	gotoxy(55, 24); cout << "Press the X key to exit..." ;
 	
 }
+/* void drawMonster(int ind) {		// ve quai vat.
+    if (MonsterFlag[ind] == 1) {
+        gotoxy(MonsterX[ind], MonsterY[ind]);	  cout << ".**.";
+        gotoxy(MonsterX[ind], MonsterY[ind] + 1); cout << ".**.";
+    }
+} */
 int main()
 {
 	HideCursor();
@@ -655,7 +447,7 @@ int main()
 	if(c == '4')  {cout<<endl; break;}
 	while(c == '3') {
 		system("cls");		
-	 	Intruction();
+	 	Introdution();
 		char x = _getch();
 		if(x=='x'||x=='X') {end = 1; c = ' ';}	 	
 	}
@@ -688,18 +480,18 @@ int main()
 	Bullet bl;
 	for (int i = 0; i < sl_monster; i++)
 	{	
-		MonsterFlag[i] = 1;
+		ms.MonsterFlag[i] = 1;
 	}	
 
 	for (int i = 0; i < sl_monster; i++)
 	{	
-		MonsterY[i] = 9;   		// khoi tao monster tai line 9
+		ms.MonsterY[i] = 9;   		// khoi tao monster tai line 9
 	}	
 		//boss
 	for (int i = 0; i < sl_boss; i++)
 	{
-		BossFlag[i] = 1;
-		BossY[i] = 9;
+		ms.BossFlag[i] = 1;
+		ms.BossY[i] = 9;
 	}
 	for (int i = 0; i < sl_monster; i++)
 	{
@@ -710,7 +502,7 @@ int main()
 		hp_boss[i]=9;
 	}
 	for (int i = 0; i < 20; i++) {
-		bullets[i][0] = bullets[i][1] = 0;
+		bl.bullets[i][0] = bl.bullets[i][1] = 0;
 	}
 	while (score<1000) {
 		ss.Move();
@@ -784,9 +576,9 @@ int main()
 				{
 				score += 20;
 				updateScore();
-				gotoxy(BossX[i], BossY[i] + 1); cout << "X.X"; Sleep(40); cout << "   ";
+				gotoxy(ms.BossX[i], ms.BossY[i] + 1); cout << "X.X"; Sleep(40); cout << "   ";
 				kill_boss++;
-				BossFlag[i]=0;
+				ms.BossFlag[i]=0;
 				}
 			}
 		}
@@ -806,9 +598,9 @@ int main()
 		bl.moveBullet();
 		for (int i = 0; i < sl_monster; i++)
 		{
-			if (MonsterFlag[i] == 1)
+			if (ms.MonsterFlag[i] == 1)
 				{
-					MonsterY[i] += 1;
+					ms.MonsterY[i] += 1;
 				}
 		}
 		if(score>150 && sl_monster==4)
@@ -818,7 +610,7 @@ int main()
 			sl_monster = 7;
 			for (int i = 4; i < sl_monster; i++)
 			{	
-				MonsterFlag[i] = 1;
+				ms.MonsterFlag[i] = 1;
 				ms.resetMonster(i);
 			}		
 		}
@@ -826,9 +618,9 @@ int main()
 		{
 			for (int i = 0; i < sl_boss; i++)
 			{
-				if (BossFlag[i] == 1)
+				if (ms.BossFlag[i] == 1)
 					{
-						BossY[i] += 1;
+						ms.BossY[i] += 1;
 					}
 			}
 		}	
@@ -842,9 +634,9 @@ int main()
 		{
 			for(int i=0;i<sl_boss;i++)
 			{
-				if (BossFlag[i] == 1)
+				if (ms.BossFlag[i] == 1)
 					{
-						BossY[i] += 1;
+						ms.BossY[i] += 1;
 					}
 			}
 		}
@@ -855,7 +647,7 @@ int main()
 			gotoxy(118, 11+7); cout << "LEVEL: "<< level;
 			for (int i = 2; i < sl_boss; i++)
 			{
-				BossFlag[i] = 1;
+				ms.BossFlag[i] = 1;
 				hp_boss[i]=9;
 				ms.resetBoss(i);
 			}
@@ -863,12 +655,12 @@ int main()
 		
 		for (int i = 0; i < sl_boss; i++)
 		{
-		if (BossY[i] > 29)
+		if (ms.BossY[i] > 29)
 			ms.resetBoss(i);
 		}
 		for (int i = 0; i < sl_monster; i++)
 		{
-			if (MonsterY[i] >= 32)
+			if (ms.MonsterY[i] >= 32)
 				ms.resetMonster(i);
 		}
 	}

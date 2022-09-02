@@ -1,3 +1,8 @@
+asd,150
+,380
+asd,550
+asd,130
+ad,200
 Hien,60
 Hien,360
 Minh,320
