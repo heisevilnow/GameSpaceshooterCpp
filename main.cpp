@@ -420,12 +420,6 @@ void Introdution()
 	gotoxy(55, 24); cout << "Press the X key to exit..." ;
 	
 }
-/* void drawMonster(int ind) {		// ve quai vat.
-    if (MonsterFlag[ind] == 1) {
-        gotoxy(MonsterX[ind], MonsterY[ind]);	  cout << ".**.";
-        gotoxy(MonsterX[ind], MonsterY[ind] + 1); cout << ".**.";
-    }
-} */
 int main()
 {
 	HideCursor();
@@ -444,7 +438,7 @@ int main()
 	DOC_FILE(filein, listplayer, n, vt);
 	filein.close();
 	char c = _getch();
-	if(c == '4')  {cout<<endl; break;}
+	if(c == '4')  {cout << endl; break;}
 	while(c == '3') {
 		system("cls");		
 	 	Introdution();
